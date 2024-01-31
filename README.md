@@ -4,9 +4,10 @@ This repo contains the data and code needed to reproduce the methodology and res
 
 The folder `data` contains the raw experimental data from both the initial direct-to-biology screen as well as the subsequent prospective screens.
 
+The folder `scripts` contains the python scripts used for training and inferencing the machine learning models used, as well as the cheminformatics scripts used to enumerate building blocks from EnamineREAL.
+
 The folder `notebooks` contains notebooks for generating the figures and calculating the metrics in the paper.
 
-The folder `scripts` contains the python scripts used for training and inferencing the machine learning models used, as well as the cheminformatics scripts used to enumerate building blocks from EnamineREAL.
 
 TO-DO:
 - upload data
