@@ -1,0 +1,21 @@
+Molecule Name,SMILES,Measured Inhibition (%),Average Prediction (%),FP
+PCM-0223366,CCN1CCN(c2ccc(NC(=O)CN3Cc4ccc(Cl)cc4[C@H](C(=O)Nc4cncc5ccccc45)C3)cc2)CC1,97.4,56.9,True
+PCM-0223638,CC(=O)Nc1ccc(NC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,95.2,52.6,True
+PCM-0223648,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1cccc(Br)c1,92.0,77.3,False
+PCM-0223612,CN1CCN(c2ccc(NC(=O)CN3Cc4ccc(Cl)cc4[C@H](C(=O)Nc4cncc5ccccc45)C3)cc2F)CC1,91.6,35.8,True
+PCM-0223642,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)Nc1ccc(N2CCOCC2=O)cc1,91.4,51.8,True
+PCM-0223523,COc1cc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc(OC)c1,90.5,76.7,False
+PCM-0223525,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1ccccc1,90.5,83.4,False
+PCM-0223397,Cc1ccc2[nH]cc(CCNC(=O)CN3Cc4ccc(Cl)cc4[C@H](C(=O)Nc4cncc5ccccc45)C3)c2c1,90.1,53.9,True
+PCM-0223544,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)Nc1ccccc1,90.1,36.7,True
+PCM-0223452,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1ccc(Br)cc1,88.3,85.6,False
+PCM-0223425,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1cc(Cl)cc(Cl)c1,88.3,74.7,False
+PCM-0223561,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCCc1ccc(Cl)c(Cl)c1,87.6,72.4,False
+PCM-0223377,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCCc1ccc(C(F)(F)F)cc1,87.3,70.1,True
+PCM-0223364,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)Nc1ccc(C(F)(F)F)cn1,86.7,20.2,True
+PCM-0223458,CCOc1ccccc1CNC(=O)CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1,86.2,74.2,False
+PCM-0223409,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1ccc2c(c1)OCO2,85.4,76.5,False
+PCM-0223392,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NC(c1ccccc1)c1ccccc1,85.0,68.7,True
+PCM-0223396,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)Nc1ccc2scnc2c1,84.8,24.0,True
+PCM-0223551,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCCc1ccc(Cl)cc1Cl,84.7,70.3,False
+PCM-0223524,CCOc1ccc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,84.2,83.1,False

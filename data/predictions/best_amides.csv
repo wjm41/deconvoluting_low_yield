@@ -1,0 +1,21 @@
+ID,SMILES,amide,Random Forest,Gaussian Process
+EN300-761439,CNc1ccc(NC(C)=O)cc1,CC(=O)Nc1ccc(N(C)C(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,68.5,93.3
+EN300-16224,COc1cccc(CN)c1,COc1cccc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)c1,81.1,91.8
+EN300-184079,CCc1ccc(CN)cc1.Cl,CCc1ccc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,86.2,89.4
+EN300-146602,Cc1ccc(CCN)cc1,Cc1ccc(CCNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,87.1,88.7
+EN300-31965,CN1CCN(c2ccc(N)cc2)CC1,CN1CCN(c2ccc(NC(=O)CN3Cc4ccc(Cl)cc4[C@H](C(=O)Nc4cncc5ccccc45)C3)cc2)CC1,80.6,87.9
+EN300-80226,CCc1ccc(CCN)cc1,CCc1ccc(CCNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,86.5,87.8
+EN300-16220,NCc1ccc(F)cc1,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1ccc(F)cc1,82.6,86.6
+EN300-17919,COc1ccc(CN)cc1OC,COc1ccc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1OC,87.6,86.6
+EN300-17924,COc1ccc(CN)cc1,COc1ccc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,83.8,86.5
+EN300-18379,COc1ccccc1CN,COc1ccccc1CNC(=O)CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1,81.2,86.2
+EN300-231128,CCN1CCN(c2ccc(N)cc2F)CC1,CCN1CCN(c2ccc(NC(=O)CN3Cc4ccc(Cl)cc4[C@H](C(=O)Nc4cncc5ccccc45)C3)cc2F)CC1,57.5,85.7
+EN300-16222,Cc1ccc(CN)cc1,Cc1ccc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)cc1,86.7,85.4
+EN300-16217,NCc1cccc(Cl)c1,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1cccc(Cl)c1,88.4,84.6
+EN300-27148281,Cl.NCCc1ccc(C(F)F)cc1,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCCc1ccc(C(F)F)cc1,83.5,84.3
+EN300-41941,CCOc1cccc(CN)c1,CCOc1cccc(CNC(=O)CN2Cc3ccc(Cl)cc3[C@H](C(=O)Nc3cncc4ccccc34)C2)c1,84.6,84.3
+EN300-56487,CC(C)(N)c1ccccc1,CC(C)(NC(=O)CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)c1ccccc1,41.2,83.5
+EN300-43573,CNCCc1ccccc1.Cl,CN(CCc1ccccc1)C(=O)CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1,35.7,82.8
+EN300-33064,NCc1cccc(F)c1,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1cccc(F)c1,84.2,82.7
+EN300-17861,NCCc1cccc(Cl)c1,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCCc1cccc(Cl)c1,87.3,82.0
+EN300-741874,NCc1ccc(CCO)cc1,O=C(CN1Cc2ccc(Cl)cc2[C@H](C(=O)Nc2cncc3ccccc23)C1)NCc1ccc(CCO)cc1,85.0,81.8
