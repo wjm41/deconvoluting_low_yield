@@ -1,195 +1,113 @@
-'''
-A Gaussian Process Regressor for predicting inhibition activity of various amide scaffolds.
-
-THERE ARE 300 UNIQUE SMILES AND 300 UNIQUE CANONICAL SMILES
-
-Leave one out.
-'''
-import numpy as np
-import pandas as pd
-import random
-from rdkit import Chem
-from rdkit.Chem import AllChem
-import matplotlib.pyplot as plt
-from pylab import *
-import seaborn as sns
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern, RBF
+from sklearn.model_selection import LeaveOneOut, GridSearchCV
+import pandas as pd
+import numpy as np
+from rdkit import Chem, DataStructs
+from rdkit.Chem import AllChem
+from tqdm import tqdm
 
-# Defining the kernels
-rbf_kernel = RBF()
-matern_kernel = Matern()
-
-rbf_gp = GaussianProcessRegressor(kernel=rbf_kernel)
-matern_gp = GaussianProcessRegressor(kernel=matern_kernel)
-
-'''
-Splitting the dataframe to training and testing datasets. Leave
-out user defined percentage of molecules.
-    Args:
-        df (dataframe): The pre-split dataframe.
-        
-        test_ratio (float): The percentage of molecules
-                            to be left out for testing.
-'''
-def train_test_split(df, test_ratio=0.05):
-    random.seed(1)
-    smiles = df['amine']
-    # Finding the smiles that will be used for the test dataset.
-    test_smiles = random.sample(smiles.to_list(), int(np.ceil(test_ratio*len(df))))
-    test_df = pd.DataFrame()
-
-    # Splitting the dataframe into test and non-test (train).
-    for smile in test_smiles:
-        test_row = df[df['amine'] == smile]
-        test_df = pd.concat([test_df, test_row])
-        df = df[df['amine'] != smile]
-
-    return df, test_df
-'''
-Leave one out for the train / test splits.
-    Args:
-        df (dataframe): The pre-split dataframe.
-        
-        index (int): The index you want to leave out
-                     for testing.
-'''
-def leaveoneout_splits(df, index):
-    test = df[index:index+1]
-    train = df.drop(index)
-
-    return train, test
-
-'''
-Removing the acid fragment to reveal just the amine.
-    Args:
-        df (dataframe): The pre-split dataframe.
-'''
-def remove_acid(df):
+def remove_acid(smiles):
+    """
+    Removing the hardcoded acid fragment from the input smiles to return just the amine.
+    
+    Parameters:
+    - smiles (str): SMILES notation of the molecule.
+    """
     # The acid fragment smiles.
     acid = 'Clc1cc2c([C@H](C(Nc(cnc3)c4c3cccc4)=O)CN(CC=O)C2)cc1'
     acid = Chem.MolFromSmarts(acid)
 
-    smiles = df['SMILES']
-    peptides = [Chem.MolFromSmiles(s) for s in smiles]
+    peptide = Chem.MolFromSmiles(smiles)
 
-    # Removing the acid fragment from the peptides.
-    amines = []
-    for mol in peptides:
-        branch = AllChem.DeleteSubstructs(mol, acid)
-        branch.UpdatePropertyCache()
-        Chem.GetSymmSSSR(branch)
-        amines.append(branch)
+    # Removing acid fragment from the peptide.
+    amine = AllChem.DeleteSubstructs(peptide, acid)
+    amine.UpdatePropertyCache()
+    Chem.GetSymmSSSR(amine)
 
-    df['Amine'] = amines
-    return df
+    return amine
 
-def main():
-    # Importing the data.
-    df = pd.read_csv('/Users/emmaking-smith/Moonshot/FINAL_CORRECTED_amide_coupling.csv', index_col=0)
-    df = df.reset_index(drop=True)
 
-    rbf_preds = []
-    rbf_stds = []
-    matern_preds = []
-    matern_stds = []
+def generate_fingerprints(smile):
+    """
+    Generates a binary molecular fingerprint from a SMILES string.
 
-    amine_rbf_preds = []
-    amine_rbf_stds = []
-    amine_matern_preds = []
-    amine_matern_stds = []
+    Parameters:
+    - smile (str): SMILES notation of the molecule.
 
-    # Train / Test splits - Doing leave one out on entire dataframe.
-    for i in range(len(df)):
-        train_df, test_df = leaveoneout_splits(df, i)
+    Returns:
+    - array (numpy.ndarray): A binary vector representing the molecular fingerprint.
+    """
+    mol = Chem.MolFromSmiles(smile)  # Convert SMILES to RDKit molecule object
+    fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)  # Generate fingerprint
+    array = np.zeros((0,), dtype=np.int8)  # Initialize an empty numpy array
+    DataStructs.ConvertToNumpyArray(fp, array)  # Convert RDKit fingerprint to numpy array
+    return array
 
-        # Converting the amines to fingerprints.
-        train_smiles = train_df['amine'].tolist()
-        train_mols = []
-        for s in train_smiles:
-            # One SMILES string doesn't have the proper number of hydrogens on aromatic nitrogen.
-            if s == 'Cc1cc(C)c(CN)c(=O)n1':
-                s = 'Cc1cc(C)c(CN)c(=O)[nH]1'
-            train_mols.append(Chem.MolFromSmiles(s))
-        train_fingerprints = [Chem.RDKFingerprint(m) for m in train_mols]
-        train_fingerprints = np.ravel(train_fingerprints).reshape(len(train_smiles), -1)
 
-        test_smiles = test_df['amine'].to_list()
-        # One SMILES string doesn't have the proper number of hydrogens on aromatic nitrogen.
-        if test_smiles[0] == 'Cc1cc(C)c(CN)c(=O)n1':
-            test_smiles[0] = 'Cc1cc(C)c(CN)c(=O)[nH]1'
+def fit_and_predict_gp(X_train, y_train, X_test, kernel_type='RBF'):
+    """
+    Fits a GaussianProcessRegressor model with the specified kernel and predicts the test set.
 
-        test_mols = [Chem.MolFromSmiles(s) for s in test_smiles]
-        test_fingerprints = [Chem.RDKFingerprint(m) for m in test_mols]
-        test_fingerprints = np.ravel(test_fingerprints).reshape(len(test_smiles), -1)
+    Parameters:
+    - X_train (numpy.ndarray): Training feature matrix.
+    - y_train (numpy.ndarray): Training target vector.
+    - X_test (numpy.ndarray): Test feature matrix.
+    - kernel_type (str): Type of kernel to use ('RBF' or 'Matern').
 
-        # Retrieving the labels for the train / test sets.
-        train_inhib = train_df['inhibition']
+    Returns:
+    - test_pred (numpy.ndarray): Predicted values for the test set.
+    """
+    if kernel_type == 'RBF':
+        kernel = RBF()
+    elif kernel_type == 'Matern':
+        kernel = Matern()
+    else:
+        raise ValueError("Unsupported kernel type. Use 'RBF' or 'Matern'.")
 
-        # Gaussian Process training.
-        rbf_gp.fit(train_fingerprints, train_inhib)
-        matern_gp.fit(train_fingerprints, train_inhib)
+    gp_model = GaussianProcessRegressor(kernel=kernel)
+    gp_model.fit(X_train, y_train)  # Fit the GP model
+    test_pred = gp_model.predict(X_test)  # Predict on the test set
+    return test_pred
 
-        # Testing the gaussian processes on whole molecules.
-        rbf_pred, rbf_std = rbf_gp.predict(test_fingerprints, return_std=True)
-        print("rbf_pred", rbf_pred[0])
-        print("rbf_std", rbf_std[0])
-        matern_pred, matern_std = matern_gp.predict(test_fingerprints, return_std=True)
-        print("matern_pred", matern_pred[0])
-        print("matern_std", matern_std[0])
-        # Appending Results to Lists.
-        rbf_preds.append(rbf_pred[0])
-        rbf_stds.append(rbf_std[0])
-        matern_preds.append(matern_pred[0])
-        matern_stds.append(matern_std[0])
+# Read the dataset containing SMILES notations and activities
+df = pd.read_csv('../data/process/activities_and_yield.csv')
+print('Generating fingerprints...')
+# Generate fingerprints for each molecule in the dataset
+df['amine'] = [remove_acid(smi) for smi in df["smiles"]]
+df['fps'] = [generate_fingerprints(smi) for smi in df["amine"]]
+# Calculate inhibition as 100 minus the mean activity percentage
+df['inhibition'] = 100 - df['Mean activity (%)']
 
-    np.save('rbf_preds.npy', rbf_preds)
-    np.save('rbf_stds.npy', rbf_stds)
-    np.save('matern_preds.npy', matern_preds)
-    np.save('matern_stds.npy', matern_stds)
+# Initialize an empty dataframe to store predictions
+df_preds = pd.DataFrame()
+# Initialize LeaveOneOut cross-validator
+loo = LeaveOneOut()
 
-    # RBF Plots.
-    fig, ax = plt.subplots(figsize=(8,8))
-    ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, color='gray')
-    ax.set_xlabel('True Inhibition (%)')
-    ax.set_ylabel('Pred Inhibition (%)')
-    ax.set_title('RBF Gaussian Process Regression (Leave One Out)')
+print('Performing leave-one-out validation with Gaussian Process models...')
+# Perform leave-one-out cross-validation using Gaussian Process models
+for train_ind, test_ind in tqdm(loo.split(df['fps']), total=len(df)):
+    # Split data into training and test sets based on the indices provided by LOO
+    X_train, X_test = df['fps'].iloc[train_ind], df['fps'].iloc[test_ind]
+    y_train, y_test = df['inhibition'].iloc[train_ind], df['inhibition'].iloc[test_ind]
 
-    cmap = sns.cubehelix_palette(as_cmap=True)
+    # Stack individual fingerprint arrays for training and test sets
+    X_train = np.vstack(X_train.values)
+    X_test = np.vstack(X_test.values)
 
-    scatter_kwargs = {"zorder": 100}
-    error_kwargs = {"lw": .5, "zorder": 0}
+    # Fit the Gaussian Process model with RBF kernel and predict on the test set
+    test_pred_rbf = fit_and_predict_gp(X_train, y_train, X_test, kernel_type='RBF')
+    # Fit the Gaussian Process model with Matern kernel and predict on the test set
+    test_pred_matern = fit_and_predict_gp(X_train, y_train, X_test, kernel_type='Matern')
 
-    points = plt.scatter(np.array(df['inhibition']), np.array(rbf_preds), s=20, c=np.array(df['yield']), cmap=cmap, **scatter_kwargs)
-    plt.errorbar(np.array(df['inhibition']), np.array(rbf_preds), yerr=2*1.96*np.array(rbf_stds), fmt='None', ecolor='gray', **error_kwargs)
+    # Create a dataframe for the test split with actual and predicted values using both kernels
+    df_split = pd.DataFrame({'name': df['Molecule Name'].iloc[test_ind],
+                             'smiles': df['smiles'].iloc[test_ind],
+                             'Measured Inhibition (%)': y_test,
+                             'GP RBF Predicted Inhibition (%)': test_pred_rbf,
+                             'GP Matern Predicted Inhibition (%)': test_pred_matern})
+    # Concatenate predictions for each test split into a single dataframe
+    df_preds = pd.concat([df_preds, df_split])
 
-    # for i,xy in enumerate(zip(df['Inhibition'], rbf_preds)):
-    #     ax.annotate(xy=xy, text=str(i))
-    fig.colorbar(points)
-    plt.savefig('correct_rbf.png')
-
-    # Matern Plots (whole molecules).
-
-    fig, ax = plt.subplots(figsize=(8, 8))
-    ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, color='gray')
-    ax.set_xlabel('True Inhibition (%)')
-    ax.set_ylabel('Pred Inhibition (%)')
-    ax.set_title('Matern Gaussian Process Regression (Leave One Out)')
-
-    cmap = sns.cubehelix_palette(as_cmap=True)
-
-    scatter_kwargs = {"zorder": 100}
-    error_kwargs = {"lw": .5, "zorder": 0}
-
-    points = plt.scatter(np.array(df['inhibition']), np.array(matern_preds), s=20, c=np.array(df['yield']), cmap=cmap,
-                         **scatter_kwargs)
-    plt.errorbar(np.array(df['inhibition']), np.array(matern_preds), yerr=2 * 1.96 * np.array(matern_stds), fmt='None',
-                 ecolor='gray', **error_kwargs)
-
-    # for i,xy in enumerate(zip(df['Inhibition'], rbf_preds)):
-    #     ax.annotate(xy=xy, text=str(i))
-    fig.colorbar(points)
-    plt.savefig('correct_matern.png')
-
-if __name__ == '__main__':
-    main()
+# Save the aggregated predictions to a CSV file
+df_preds.to_csv('../data/predictions/gp_predictions.csv', index=False)
