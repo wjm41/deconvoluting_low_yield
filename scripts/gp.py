@@ -59,14 +59,18 @@ def fit_and_predict_gp(X_train, y_train, X_test, kernel_type='RBF'):
     - test_pred (numpy.ndarray): Predicted values for the test set.
     """
     if kernel_type == 'RBF':
-        kernel = RBF()
+        params = {"kernel": [RBF(l) for l in np.logspace(-1, 1, 3)]}
+
     elif kernel_type == 'Matern':
-        kernel = Matern()
+        params = {"kernel": [Matern(l) for l in np.logspace(-1, 1, 3)]}
+
     else:
         raise ValueError("Unsupported kernel type. Use 'RBF' or 'Matern'.")
 
-    gp_model = GaussianProcessRegressor(kernel=kernel)
-    gp_model.fit(X_train, y_train)  # Fit the GP model
+    # Define the parameter grid for GridSearchCV
+    search = GridSearchCV(GaussianProcessRegressor(), params, cv=5, verbose=1, n_jobs=-1)
+    # Initialize GridSearchCV with RandomForestRegressor, parameter grid, and cross-validation settings
+    gp_model = search.fit(X_train, y_train).best_estimator_  # Fit the model and retrieve the best estimator
     test_pred = gp_model.predict(X_test)  # Predict on the test set
     return test_pred
 
